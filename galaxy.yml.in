@@ -1,0 +1,34 @@
+namespace: opentelekomcloud
+name: common
+version: 0.0.1
+readme: README.md
+authors:
+- Artem Goncharov <artem.goncharov@gmail.com>
+
+description: Collection with the content most oftenly used
+license:
+- Apache-2.0
+tags: 
+  - cloud
+  - openstack
+  - opentelekomcloud
+dependencies: {}
+repository: http://github.com/OpenTelekomCloud/ansible-collection-common
+documentation: http://docs.otc.t-systems.com
+homepage: https://open-telekom-cloud.com
+issues: http://github.com/OpenTelekomCloud/ansible-collection-common/issue/tracker
+build_ignore:
+  - "*.tar.gz"
+  - build_artifact/
+  - ci/
+  - galaxy.yml.in
+  - setup.cfg
+  - test-requirements.txt
+  - tests
+  - tools
+  - tox.ini
+  - .gitignore
+  - .gitreview
+  - .zuul.yaml
+  - .pytest_cache
+  - importer_result.json

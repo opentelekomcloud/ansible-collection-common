@@ -1,0 +1,31 @@
+- name: create temp directory
+  tempfile:
+    state: directory
+    suffix: grafana_dashboard
+  register: temp_dir
+
+- name: Generate destination
+  set_fact:
+    dashboard_dest: "{{ (temp_dir.path + '/dashboard.json') }}"
+
+- name: Generate dashboard json
+  template:
+    src: dashboard.json.j2
+    dest: "{{ dashboard_dest }}"
+
+- name: Add dashboard
+  grafana_dashboard:
+    grafana_url: "{{ ('https://' + grafana_public_ip + ':' + grafana_public_port|string) }}"
+    grafana_user: "admin"
+    grafana_password: "{{ grafana_security_admin_password }}"
+    state: present
+    path: "{{ dashboard_dest }}"
+    validate_certs: "{{ apimon_ssl_validate_cert }}"
+    overwrite: yes
+
+
+- name: Remove temp dir
+  file:
+    path: "{{ temp_dir.path }}"
+    state: absent
+  when: temp_dir.path is defined

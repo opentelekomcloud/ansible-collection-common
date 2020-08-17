@@ -1,0 +1,31 @@
+[Unit]
+Description=Telegraf Podman container
+Wants=syslog.service
+
+[Service]
+Type=simple
+Restart=always
+TimeoutSec=30s
+User={{ telegraf_os_user }}
+Group={{ telegraf_os_group }}
+EnvironmentFile=/etc/telegraf/env
+
+ExecStartPre=-/usr/bin/podman system migrate
+ExecStartPre=-/usr/bin/podman rm "telegraf"
+
+ExecStart=/usr/bin/podman run \
+  --name "telegraf" \
+  -p 8186:8186 \
+  -p 8125:8125 \
+  -p 9273:9273 \
+  -v /etc/telegraf:/etc/telegraf:ro \
+  -v /:/rootfs:ro -e HOST_MOUNT_PREFIX=/rootfs -e HOST_PROC=/rootfs/proc \
+  ${TELEGRAF_IMAGE}
+
+ExecReload=-/usr/bin/podman stop "telegraf"
+ExecReload=-/usr/bin/podman rm "telegraf"
+
+ExecStop=/usr/bin/podman stop -t 10 "telegraf"
+
+[Install]
+WantedBy=multi-user.target

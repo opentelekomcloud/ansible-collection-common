@@ -1,0 +1,1 @@
+TELEGRAF_IMAGE=telegraf:{{ telegraf_image_tag }}
