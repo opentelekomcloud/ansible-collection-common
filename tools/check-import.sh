@@ -15,13 +15,17 @@
 
 set -e
 
-TOXDIR=${1:-.}
+ARTIFACT_PATH=${1:-"*.tar.gz"}
+
+if [[ -n "venv" ]]; then
+    source venv/bin/activate
+fi
 
 # galaxy_importer.main does not return non-zero error code on error
-#output=$(python -m galaxy_importer.main $TOXDIR/build_artifact/*)
-#echo $output
-#if echo $output | grep ERROR: ; then
-#    echo $output
-#    exit 1
-#fi
+PY_EXE=$(command -v python3 || command -v python)
+output=$($PY_EXE -m galaxy_importer.main $ARTIFACT_PATH) || true
+if echo $output | grep ERROR: ; then
+    #echo $output
+    exit 1
+fi
 
