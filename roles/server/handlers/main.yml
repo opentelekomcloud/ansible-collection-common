@@ -1,0 +1,9 @@
+---
+# handlers file for ansible-role-otc-server-common
+- name: restart sshd
+  become: true
+  systemd: name=sshd state=restarted
+
+- name: restart journald
+  become: true
+  systemd: name=systemd-journald state=restarted

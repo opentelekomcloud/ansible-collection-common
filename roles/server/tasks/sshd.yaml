@@ -1,0 +1,38 @@
+---
+- name: Start services
+  become: true
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  loop:
+    - firewalld
+    - sshguard
+    - sshd
+
+- name: disable root login
+  become: true
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin.*'
+    replace: 'PermitRootLogin no'
+
+- name: enable SSH forwarding (tunnel through Bastion)
+  become: true
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '^AllowTcpForwarding.*'
+    replace: 'AllowTcpForwarding yes'
+    backup: yes
+  when: enable_ssh_tcp_forwarding|bool
+  notify:
+    - restart sshd
+
+- name: disable password login on bastion
+  become: true
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication.*'
+    replace: 'PasswordAuthentication no'
+  notify:
+    - restart sshd
