@@ -31,6 +31,5 @@ echo $location
 cd $location
 echo "Running ansible-test with version:"
 ansible --version
-ansible-test sanity --help
 ansible-test sanity \
     --venv --python 3.6 --debug -v
