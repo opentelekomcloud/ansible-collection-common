@@ -1,0 +1,6 @@
+TAG="6.2.4"
+GRAFANA_IMAGE="grafana/grafana:${TAG}"
+SYSTEMD_ARGS="-p 3000:3000 -v /var/lib/grafana:/var/lib/grafana:Z -v /etc/ssl/grafana.pem:/etc/ssl/grafana.pem:Z -v /etc/grafana:/etc/grafana:Z ${GRAFANA_IMAGE}"
+GF_SECURITY_ADMIN_PASSWORD=foobar
+GF_USERS_ALLOW_SIGNUP=false
+

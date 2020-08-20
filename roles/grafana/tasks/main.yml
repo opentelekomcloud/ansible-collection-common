@@ -1,0 +1,137 @@
+---
+# tasks file for roles/grafana
+
+- name: Include Fedora variables
+  include_vars: fedora.yml
+  when: ansible_distribution == "Fedora"
+
+- name: Install required packages
+  become: true
+  package:
+    state: present
+    name: "{{ item }}"
+  with_items: "{{ packages }}"
+  register: task_result
+  until: task_result is success
+  retries: 5
+
+- name: Create Grafana group
+  become: true
+  group:
+    name: "{{ grafana_os_user }}"
+    state: present
+
+- name: Create Grafana user
+  become: true
+  user:
+    name: "{{ grafana_os_user }}"
+    group: "{{ grafana_os_group }}"
+  register:
+    grafana_user
+
+- name: Create required directories
+  become: true
+  file:
+    path: "{{ item.dest }}"
+    state: directory
+    recurse: yes
+    owner: "{{ grafana_os_user }}"
+    group: "{{ grafana_os_group }}"
+    mode: "{{ item.mode | default(omit) }}"
+  loop:
+    - {dest: "/etc/grafana"}
+    - {dest: "/etc/grafana/provisioning"}
+    - {dest: "/etc/grafana/ldap"}
+    - {dest: "/var/lib/grafana", mode: "0777"}
+
+- name: Write Grafana config env file
+  become: true
+  template:
+    src: env
+    dest: /etc/grafana/env
+    owner: "{{ grafana_os_user }}"
+    group: "{{ grafana_os_group }}"
+    mode: 0770
+
+- name: Write Grafana ldap conf file
+  become: true
+  template:
+    src: ldap.toml
+    dest: /etc/grafana/ldap/ldap.toml
+    owner: "{{ grafana_os_user }}"
+    group: "{{ grafana_os_group }}"
+    mode: 0664
+  when: grafana_auth_ldap_enable
+
+- name: Write Grafana ldap root CA file
+  become: true
+  template:
+    src: ldap-certificate.crt
+    dest: /etc/grafana/ldap/ldap-certificate.crt
+    owner: "{{ grafana_os_user }}"
+    group: "{{ grafana_os_group }}"
+    mode: 0664
+  when: grafana_auth_ldap_enable
+
+- name: Write SSL Cert
+  become: true
+  copy:
+    content: "{{ item.content }}"
+    dest: "{{ item.location }}"
+  when: grafana_enable_ssl and item.content
+  loop:
+    - {content: "{{ grafana_ssl_cert_content }}",
+       location: "{{ grafana_ssl_cert_location }}"}
+    - {content: "{{ grafana_ssl_key_content }}",
+       location: "{{ grafana_ssl_key_location }}"}
+
+
+- name: Set ssl cert permission
+  become: true
+  file:
+    path: "{{ item.location }}"
+    owner: "{{ grafana_os_user }}"
+    group: "{{ grafana_os_group }}"
+    mode: "{{ item.mode }}"
+  when: grafana_enable_ssl
+  loop:
+    - {location: "{{ grafana_ssl_cert_location }}",
+       mode: '0644'}
+    - {location: "{{ grafana_ssl_key_location }}",
+       mode: '0600'}
+
+- include_tasks: firewall.yml
+
+- name: Write Grafana Image Renderer Systemd unit file
+  become: true
+  template:
+    src: "grafana-renderer.service.j2"
+    dest: "{{ grafana_renderer_systemd_unit_path }}"
+  when: grafana_enable_renderer
+  notify:
+    - restart grafana-renderer
+
+- name: Write Grafana Systemd unit file
+  become: true
+  template:
+    src: "grafana.service.j2"
+    dest: "{{ grafana_systemd_unit_path }}"
+  notify:
+    - restart grafana
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  meta: flush_handlers
+
+- name: Make sure the Grafana service started
+  become: true
+  systemd:
+    state: started
+    name: "{{ grafana_systemd_service_name }}"
+
+- name: Install Grafana plugins
+  become: true
+  become_user: "{{ grafana_os_user }}"
+  command: "podman exec grafana grafana-cli plugins install {{ item }}"
+  loop: "{{ grafana_plugins }}"
+  notify:
+    - restart grafana

@@ -1,0 +1,36 @@
+---
+# defaults file for telegraf
+telegraf_systemd_service_name: "telegraf.service"
+telegraf_systemd_unit_path: "{{ '/etc/systemd/system/' + telegraf_systemd_service_name }}"
+telegraf_image_tag: 1.13.0
+telegraf_tags: 
+  hostname: fake
+
+telegraf_os_user: telegraf
+telegraf_os_group: telegraf
+
+telegraf_hostname:
+
+telegraf_output_influxdb_enable: false
+telegraf_output_influxdb_host: 127.0.0.1
+telegraf_output_influxdb_port: 8086
+telegraf_outputs_influxdb:
+
+# NOTE: at least one output must be enabled
+telegraf_output_prometheus_enable: true
+
+# influxdb_telegraf_db_name: some_db
+# influxdb_telegraf_user_name: fake_user
+# influxdb_telegraf_user_password: fake_pass
+# influxdb_ssl_validate_cert: true
+#
+
+telegraf_input_statsd_enable: false
+
+telegraf_input_influxdb_enable: false
+telegraf_input_influxdb_user_name: foobar
+telegraf_input_influxdb_user_password: barfoo
+
+telegraf_input_cpu_enable: true
+telegraf_input_mem_enable: true
+telegraf_input_disk_enable: true

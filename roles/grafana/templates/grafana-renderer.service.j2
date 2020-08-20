@@ -1,0 +1,40 @@
+[Unit]
+Description=Grafana Image Renderer container
+Wants=syslog.service
+
+[Service]
+Type=simple
+TimeoutSec=30s
+Restart=always
+User={{ grafana_os_user }}
+Group={{ grafana_os_group }}
+
+
+{% if grafana_renderer_image_tag is defined and grafana_renderer_image_tag|length %}
+Environment=GRAFANA_RENDERER_IMAGE=grafana/grafana-image-renderer:{{ grafana_renderer_image_tag }}
+{% else %}
+Environment=GRAFANA_RENDERER_IMAGE=grafana/grafana-image-renderer:2.0.0
+{% endif %}
+
+ExecStartPre=-/usr/bin/podman system migrate
+ExecStartPre=-/usr/bin/podman rm "grafana-renderer"
+
+ExecStart=/usr/bin/podman run \
+    --name "grafana-renderer" \
+{% if grafana_renderer_hosts_entries is defined and grafana_renderer_hosts_entries|length %}
+{% for item in grafana_renderer_hosts_entries %}
+    --add-host={{ item }} \
+{% endfor %}
+{% endif %}
+    -p 8081:8081 \
+    ${GRAFANA_RENDERER_IMAGE}
+
+ExecReload=-/usr/bin/podman stop "grafana-renderer"
+ExecReload=-/usr/bin/podman rm "grafana-renderer"
+
+ExecStop=/usr/bin/podman stop "grafana-renderer"
+ExecStop=/usr/bin/podman rm "grafana-renderer"
+
+[Install]
+WantedBy=multi-user.target
+

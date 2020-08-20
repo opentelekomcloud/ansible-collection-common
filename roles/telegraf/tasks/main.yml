@@ -1,0 +1,61 @@
+---
+# tasks file for roles/executor
+- name: Include Fedora variables
+  include_vars: fedora.yml
+  when: ansible_distribution == "Fedora"
+
+- name: Install required packages
+  become: true
+  package:
+    state: present
+    name: "{{ item }}"
+  with_items: "{{ packages }}"
+  register: task_result
+  until: task_result is success
+  retries: 5
+  delay: 2
+
+- name: Create telegraf OS group
+  become: true
+  group:
+    name: "{{ telegraf_os_group }}"
+    state: present
+
+- name: Create telegraf OS user
+  become: true
+  user:
+    name: "{{ telegraf_os_user }}"
+    group: "{{ telegraf_os_group }}"
+
+- name: Make sure Telegraf Conf dir exists
+  become: true
+  file:
+    path: "/etc/telegraf"
+    state: directory
+    recurse: yes
+    owner: "{{ telegraf_os_user }}"
+    group: "{{ telegraf_os_group }}"
+
+- name: Write Telegraf Env file
+  become: true
+  template:
+    src: "env"
+    dest: "/etc/telegraf/env"
+  notify:
+    - restart telegraf
+
+- name: Write Telegraf Conf
+  become: true
+  template:
+    src: "telegraf.conf"
+    dest: "/etc/telegraf/telegraf.conf"
+  notify:
+    - restart telegraf
+
+- name: Write telegraf systemd unit file
+  become: true
+  template:
+    dest: "{{ telegraf_systemd_unit_path }}"
+    src: telegraf.service
+  notify:
+    - restart telegraf

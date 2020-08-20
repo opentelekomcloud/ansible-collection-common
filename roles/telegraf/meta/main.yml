@@ -1,0 +1,18 @@
+galaxy_info:
+  role_name: telegraf
+  author: Artem Goncharov
+  description: Provision Telegraf under Podman container
+  company: OpenTelekomCloud
+
+  license: Apache-2.0
+
+  min_ansible_version: 2.4
+
+  platforms:
+  - name: Fedora
+    versions:
+    - all
+
+  galaxy_tags: [telegraf, podman]
+
+dependencies: []
