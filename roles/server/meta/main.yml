@@ -1,0 +1,31 @@
+galaxy_info:
+  role_name: server_common
+  author: Artem Goncharov
+  description: Obvious initial setting to be applied to any cloud server
+  company: OpenTelekomCloud
+
+  license: license (Apache)
+
+  min_ansible_version: 2.4
+
+  platforms:
+   - name: EL
+     versions:
+      - all
+   - name: Fedora
+     versions:
+      - all
+   - name: Ubuntu
+     versions:
+      - all
+   - name: Debian
+     versions:
+      - all
+  galaxy_tags:
+    - system
+    - cloud
+    - openstack
+    - otc
+    - server
+
+  dependencies: []

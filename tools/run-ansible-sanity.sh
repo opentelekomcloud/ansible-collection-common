@@ -20,15 +20,17 @@ echo "Executing ansible-test sanity checks in ${ANSIBLE_COLLECTIONS_PATH}"
 trap "rm -rf ${ANSIBLE_COLLECTIONS_PATH}" err exit
 
 rm -rf "${ANSIBLE_COLLECTIONS_PATH}"
-mkdir -p ${ANSIBLE_COLLECTIONS_PATH}/ansible_collections/opentelekomcloud/common
-cp -a ${TOXDIR}/{plugins,roles,tests,docs} ${ANSIBLE_COLLECTIONS_PATH}/ansible_collections/opentelekomcloud/common
-cd ${ANSIBLE_COLLECTIONS_PATH}/ansible_collections/opentelekomcloud/common/
+mkdir -p ${ANSIBLE_COLLECTIONS_PATH}
+# Created collection x.y at z
+output=$(ansible-galaxy collection build --force | sed 's,.* at ,,')
+# bla bla bla installing x.y to 'z'
+location=$(ansible-galaxy collection install ${output} \
+  -p ${ANSIBLE_COLLECTIONS_PATH} --force 2>/dev/null \
+  | grep 'Installing' | sed 's,.* to ,,;' | tr -d "'")
+echo $location
+cd $location
 echo "Running ansible-test with version:"
 ansible --version
 ansible-test sanity --help
 ansible-test sanity \
-    --venv --python 3.6 --debug -v
-#    --skip-test metaclass-boilerplate \
-#    --skip-test future-import-boilerplate \
-#    plugins/ docs/ roles/ tests/
-
+    --venv --debug -v

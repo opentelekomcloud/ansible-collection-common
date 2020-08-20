@@ -1,0 +1,10 @@
+---
+- name: ensure journalctl will not eat whole disk
+  become: true
+  replace:
+    path: /etc/systemd/journald.conf
+    regexp: '^#SystemMaxUse.*'
+    replace: "{{ ('SystemMaxUse=' + journalctl_max_disk_usage) }}"
+    backup: yes
+  notify:
+    - restart journald

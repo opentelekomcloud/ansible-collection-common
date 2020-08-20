@@ -1,0 +1,7 @@
+---
+# defaults file for ansible-role-otc-server-common
+journalctl_max_disk_usage: 1G
+
+enable_ssh_tcp_forwarding: False
+
+packages:
