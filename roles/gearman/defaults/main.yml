@@ -1,0 +1,5 @@
+---
+# defaults file for gearman
+
+gearmand_systemd_service_name: gearmand
+

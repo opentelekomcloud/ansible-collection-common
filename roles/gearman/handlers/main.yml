@@ -1,0 +1,10 @@
+---
+# handlers file for gearman
+
+- name: restart gearmand
+  become: true
+  systemd:
+    name: "{{ gearmand_systemd_service_name }}"
+    enabled: yes
+    state: restarted
+    daemon-reload: yes

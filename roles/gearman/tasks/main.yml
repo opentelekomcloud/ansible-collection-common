@@ -1,0 +1,26 @@
+---
+# tasks file for gearman
+
+- name: Include Fedora variables
+  include_vars: fedora.yml
+  when: ansible_distribution == "Fedora"
+
+- name: Install required packages
+  become: true
+  package:
+    state: present
+    name: "{{ item }}"
+  with_items: "{{ packages }}"
+  register: task_result
+  until: task_result is success
+  retries: 5
+
+- include_tasks: firewall.yml
+
+- name: Make sure the Gearmand service started
+  become: true
+  systemd:
+    state: started
+    enabled: yes
+    daemon-reload: yes
+    name: "{{ gearmand_systemd_service_name }}"
