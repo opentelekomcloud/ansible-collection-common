@@ -23,4 +23,4 @@
     state: started
     enabled: yes
     daemon-reload: yes
-    name: "{{ gearmand_systemd_service_name }}"
+    name: gearmand
