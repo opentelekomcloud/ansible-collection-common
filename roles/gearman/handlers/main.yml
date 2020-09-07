@@ -4,7 +4,7 @@
 - name: restart gearmand
   become: true
   systemd:
-    name: "{{ gearmand_systemd_service_name }}"
+    name: gearmand
     enabled: yes
     state: restarted
     daemon-reload: yes
