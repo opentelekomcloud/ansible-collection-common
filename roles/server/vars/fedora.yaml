@@ -1,6 +1,6 @@
 ---
 packages:
-  - libselinux-python
+  - python3-libselinux
   - python3-openstackclient
   - firewalld
   - openssh-server
