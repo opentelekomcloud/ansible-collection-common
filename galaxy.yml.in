@@ -25,7 +25,6 @@ build_ignore:
   - setup.cfg
   - setup.py
   - test-requirements*.txt
-  - tests
   - tools
   - tox.ini
   - .gitignore
