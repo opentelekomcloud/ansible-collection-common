@@ -5,3 +5,4 @@ packages:
   - firewalld
   - openssh-server
   - cronie
+  - sshguard
