@@ -1,8 +1,7 @@
 ---
 packages:
-  - libselinux-python
+  - python3-libselinux
   - mc
-  - python2-openstackclient
   - firewalld
   - openssh-server
   - cronie
