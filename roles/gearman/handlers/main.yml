@@ -1,0 +1,10 @@
+---
+# handlers file for gearman
+
+- name: restart gearmand
+  become: true
+  systemd:
+    name: gearmand
+    enabled: yes
+    state: restarted
+    daemon-reload: yes
